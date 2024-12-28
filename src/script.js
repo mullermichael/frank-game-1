@@ -1,57 +1,92 @@
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
   // canvas setup
-  const canvas = document. getElementById("canvas1");
-  const ctx = canvas. getContext("2d");
-  canvas.width =  500;
+  const canvas = document.getElementById("canvas1");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 500;
   canvas.height = 500;
 
   class IntuputHandler {
-  }
+    constructor(game) {
+      this.game = game;
+      window.addEventListener("keydown", (e) => {
+        if (
+          (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+          this.game.keys.indexOf(e.key) === -1
+        ) {
+          this.game.keys.push(e.key);
+          console.log(this.game.keys);
+        }
+      });
 
-  class Projectile {
-  }
-
-  class Particle {
-  }
-  
-  class Player {
-     constructor(game){
-         this.game = game;
-         this.width = 120;
-         this.height = 190;
-         this.x = 20;
-         this.y = 100;
-         this.speedY = 0;
-     }
-     update(){
-        this.y += this.speedY;
-     }
-     draw(context){
-         context.fillRect(this.x, this.y, this.width, this.height);
-     }
-  }
-  class Enemy {
-
-  }
-  class Layer {
-
-  }
-  class Background {
-
-  }
-  class UI {
-
-  }
-  class Game {
-     constructor(width, height){
-        this.width = width; 
-        this.height = height; 
-        this.Player = new Player(this);
+      window.addEventListener("keyup", (e) => {
+        if (this.game.keys.indexOf(e.key) > -1) {
+          this.game.keys.splice(this.game.keys.indexOf(e.key), 1);
+          console.log(this.game.keys);
+        }
+      });
     }
-    update(){
-        this.Player.update();
-    } 
-    draw();
-}
+  }
 
+  class Projectile {}
+
+  class Particle {}
+
+  class Player {
+    constructor(game) {
+      this.game = game;
+      this.width = 120;
+      this.height = 190;
+      this.x = 20;
+      this.y = 100;
+      this.speedY = 1;
+      this.maxSpeed = 3;
+    }
+    update() {
+      if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
+      else if (this.game.keys.includes("ArrowDown"))
+        this.speedY = this.maxSpeed;
+      else this.speedY = 0;
+
+      this.y += this.speedY;
+    }
+    draw(context) {
+      context.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+  class Enemy {}
+  class Layer {}
+  class Background {}
+  class UI {}
+
+  class Game {
+    constructor(width, height) {
+      this.width = width;
+      this.height = height;
+      this.Player = new Player(this);
+      const input = new IntuputHandler(this);
+      this.keys = [];
+    }
+
+    update() {
+      this.Player.update();
+    }
+    draw(context) {
+      this.Player.draw(context);
+    }
+  }
+
+  // All classes now defined so lets start the program
+
+  const game = new Game(canvas.width, canvas.height);
+
+  // animation loop
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.update();
+    game.draw(ctx);
+    requestAnimationFrame(animate);
+  }
+
+  animate();
 });
